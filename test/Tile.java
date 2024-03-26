@@ -78,26 +78,21 @@ public class Tile {
     }
 
     public Tile getTile(char letter) {
-      letter = Character.toUpperCase(letter);
-      System.out.println("Requested tile for letter: " + letter);  // Debug print
-  
-      if (letter < 'A' || letter > 'Z') {
-          System.out.println("Invalid character: " + letter);  // Debug print
+      if (!Character.isUpperCase(letter)) {
+          System.out.println("Invalid character or lowercase: " + letter);
           return null;
       }
   
       int index = letter - 'A';
       if (tileQuantities[index] > 0) {
           tileQuantities[index]--;
-          System.out.println("Returning tile for: " + letter);  // Debug print
+          System.out.println("Returning tile for: " + letter);
           return tiles[index];
       } else {
-          System.out.println("Out of tiles for: " + letter);  // Debug print
+          System.out.println("Out of tiles for: " + letter);
+          return null;
       }
-      return null;
   }
-  
-  
   
 
     public void put(Tile tile) {
@@ -121,25 +116,44 @@ public class Tile {
 
     private static int getScoreForLetter(char letter) {
       switch (Character.toUpperCase(letter)) {
-          case 'A': case 'E': case 'I': case 'O': case 'U': case 'L': case 'N': case 'S': case 'T': case 'R':
-              return 1;
-          case 'D': case 'G':
-              return 2;
-          case 'B': case 'C': case 'M': case 'P':
-              return 3;
-          case 'F': case 'H': case 'V': case 'W': case 'Y':
-              return 4;
-          case 'K':
-              return 5;
-          case 'J': case 'X':
-              return 8;
-          case 'Q': case 'Z':
-              return 10;
-          default:
-              return 0; // Might be used for blank tiles or errors
+        case 'A':
+        case 'E':
+        case 'I':
+        case 'O':
+        case 'U':
+        case 'L':
+        case 'N':
+        case 'S':
+        case 'T':
+        case 'R':
+          return 1;
+        case 'D':
+        case 'G':
+          return 2;
+        case 'B':
+        case 'C':
+        case 'M':
+        case 'P':
+          return 3;
+        case 'F':
+        case 'H':
+        case 'V':
+        case 'W':
+        case 'Y':
+          return 4;
+        case 'K':
+          return 5;
+        case 'J':
+        case 'X':
+          return 8;
+        case 'Q':
+        case 'Z':
+          return 10;
+        default:
+          return 0; // Might be used for blank tiles or errors
       }
-  }
-  
+    }
+
   }
 
 }
