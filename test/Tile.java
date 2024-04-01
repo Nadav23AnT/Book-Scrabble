@@ -1,12 +1,10 @@
 package test;
 
-import java.util.Random;
-
 public class Tile {
   public final char letter;
   public final int score;
 
-  Tile(char letter, int score) {
+  private Tile(char letter, int score) {
     this.letter = letter;
     this.score = score;
   }
@@ -17,31 +15,27 @@ public class Tile {
       return true;
     if (o == null || getClass() != o.getClass())
       return false;
-
     Tile tile = (Tile) o;
-
-    if (letter != tile.letter)
-      return false;
-    return score == tile.score;
+    return letter == tile.letter && score == tile.score;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) letter;
-    result = 31 * result + score;
+    int result = Character.hashCode(letter);
+    result = 31 * result + Integer.hashCode(score);
     return result;
   }
 
+  // Static inner class Bag
   public static class Bag {
     private static final int[] initialQuantities = {
         9, 2, 2, 4, 12, 2, 3, 2, 9, 1, 1, 4, 2, 6, 8, 2, 1, 6, 4, 6, 4, 2, 2, 1, 2, 1
     };
-    private static final int[] tileQuantities = initialQuantities.clone();
-    private static final Tile[] tiles;
+    private int[] quantities = initialQuantities.clone();
+    private static final Tile[] tiles = new Tile[26];
     private static Bag instance = null;
 
     static {
-      tiles = new Tile[26];
       for (char c = 'A'; c <= 'Z'; c++) {
         int score = getScoreForLetter(c);
         tiles[c - 'A'] = new Tile(c, score);
@@ -49,12 +43,6 @@ public class Tile {
     }
 
     private Bag() {
-      // Private constructor for Singleton
-    }
-
-    public static Tile createTile(char letter, int score) {
-      // Validation for letter and score can be added if needed.
-      return new Tile(letter, score);
     }
 
     public static Bag getBag() {
@@ -65,57 +53,52 @@ public class Tile {
     }
 
     public Tile getRand() {
-      Random rand = new Random();
-      while (true) {
-        int index = rand.nextInt(tileQuantities.length);
-        if (tileQuantities[index] > 0) {
-          tileQuantities[index]--;
-          return tiles[index];
-        } else if (size() == 0) {
-          return null;
-        }
+      int totalTiles = size();
+      if (totalTiles == 0) {
+        return null;
       }
+
+      int index = (int) (Math.random() * totalTiles);
+      for (int i = 0; i < quantities.length; i++) {
+        if (index < quantities[i]) {
+          quantities[i]--;
+          return tiles[i];
+        }
+        index -= quantities[i];
+      }
+      return null; // Should never reach here if logic is correct
     }
 
     public Tile getTile(char letter) {
-      if (!Character.isUpperCase(letter)) {
-          System.out.println("Invalid character or lowercase: " + letter);
-          return null;
+      int index = Character.toUpperCase(letter) - 'A';
+      if (index < 0 || index >= quantities.length || quantities[index] == 0) {
+        return null;
       }
-  
-      int index = letter - 'A';
-      if (tileQuantities[index] > 0) {
-          tileQuantities[index]--;
-          System.out.println("Returning tile for: " + letter);
-          return tiles[index];
-      } else {
-          System.out.println("Out of tiles for: " + letter);
-          return null;
-      }
-  }
-  
+      quantities[index]--;
+      return tiles[index];
+    }
 
     public void put(Tile tile) {
       int index = tile.letter - 'A';
-      if (tileQuantities[index] < initialQuantities[index]) {
-        tileQuantities[index]++;
+      if (quantities[index] < initialQuantities[index]) {
+        quantities[index]++;
       }
     }
 
     public int size() {
-      int size = 0;
-      for (int quantity : tileQuantities) {
-        size += quantity;
+      int sum = 0;
+      for (int quantity : quantities) {
+        sum += quantity;
       }
-      return size;
+      return sum;
     }
 
     public int[] getQuantities() {
-      return tileQuantities.clone();
+      return quantities.clone();
     }
 
     private static int getScoreForLetter(char letter) {
-      switch (Character.toUpperCase(letter)) {
+      switch (letter) {
         case 'A':
         case 'E':
         case 'I':
@@ -150,10 +133,9 @@ public class Tile {
         case 'Z':
           return 10;
         default:
-          return 0; // Might be used for blank tiles or errors
+          return 0; // Handle unexpected characters
       }
     }
-
   }
 
 }
