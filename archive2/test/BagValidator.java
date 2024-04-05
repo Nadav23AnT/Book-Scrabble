@@ -1,6 +1,6 @@
-package test;
+package archive2.test;
 
-import test.Tile.Bag;
+import archive2.test.Tile.Bag;
 
 public class BagValidator {
 

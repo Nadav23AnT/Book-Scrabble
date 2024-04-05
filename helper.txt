@@ -1,0 +1,259 @@
+The number of tiles in the bag for each letter at the beginning of the game:
+A 9
+B 2
+C 2
+D 4 
+E 12
+F 2
+G 3
+H 2
+I 9
+J 1
+K 1
+L 4
+M 2
+N 6
+O 8
+P 2
+Q 1
+R 6
+S 4
+T 6
+U 4
+V 2
+W 2
+X 1
+Y 2
+Z 1
+* In the original game there are also two empty tiles, but in our game we will ignore them
+
+THE BOARD is 15x15 and one side is A-O (15 spots, you can issue them as numbers instead for the algorithems you are about to create)
+Double Letter Score: 
+D1 , L1, G3, I3, A4, H4, O4, C7, G7, I7, M7, C9, G9, I9, M9,D8, L8, A12, H12, O12, G13, I13, D15, L15
+Triple Letter Score:
+F2, J2, B6, F6, J6,  N6, ,B10 , F10, J10, N10, F14, J14
+Double Word Score:
+B2, C3, D4, E5, K5, L4, M3, N2, B14, C13, D12,E11, K11,L12,M13,N14
+Triple Word Score: 
+ A1, H1, O1, A8, 08, A15, H15, 015
+ 
+GUIDE
+
+In fact, this project can be used as your showcase when you want to present the programming experience you have gained.
+This project contains the following elements:
+• Use of design and architecture templates
+• Communication and server-client architecture
+• Use of data structures / databases
+• Data streaming (files and communication)
+• Implementation of algorithms
+• Parallel programming using threads
+• Event-oriented programming, desktop application with GUI
+
+In this project we will build the game Book Scrabble - similar
+For the Scrabble game ("Strike na" in the Hebrew version) the players
+They will have to put together words that intersect with each other like in a crossword puzzle and accumulate
+points However, the legal words are not all the words in the dictionary
+English, but only words that appear in the books chosen for the game.
+In this section, a generic server will be built in stages that will allow the user to play in front of the server
+
+MORE Background:
+Definitions :
+Tile - Tile
+• A small board containing a letter (in English) and its value in the game - the number of points the letter is worth.
+• In the following diagram you can see how much each letter is worth in the game
+• The score is based on an inverse relationship to the frequency of the letter in the English language. Rule the rarer the letter the more you will get
+Higher score.
+Bag
+• A bag containing 98 tiles *
+• Allows players to randomly remove tiles (ie no).
+let them see what they spend
+The number of tiles in the bag for each letter at the beginning of the game:
+A 9
+B 2
+C 2
+D 4 
+E 12
+F 2
+G 3
+H 2
+I 9
+J 1
+K 1
+L 4
+M 2
+N 6
+O 8
+P 2
+Q 1
+R 6
+S 4
+T 6
+U 4
+V 2
+W 2
+X 1
+Y 2
+Z 1
+* In the original game there are also two empty tiles, but in our game we will ignore them
+
+The game board - Board
+• 15x15 two-dimensional board
+• To board some bonus slots:
+o The central square (marked with a star) doubles the value of the word written on it
+o Squares that double the value of the letter on them (light blue)
+o Squares that triple the value of the letter on them (blue)
+o Squares that double the value of the entire word (yellow)
+o Squares that triple the value of the entire word (red)
+
+For the purpose of the project we will define a slightly simpler set of rules than the original game:
+1 . Each player randomly draws a tile from the checkerboard
+2. The order of the players is determined by the order of the letters drawn (from smallest to largest)
+a. If an empty tile is drawn, we will return it to the bag and draw another one.
+3. All the tiles return to K
+4. Each player randomly draws 7 tiles
+5. The first player (the one who drew the smallest letter in the lottery) has to form a legal word
+which passes through the central slot (the star) in the board.
+a. Only he gets a double score for her.
+b. He completes from the bag so that he has 7 tiles again.
+6. Gradually, each player, in turn, assembles a legal word from the tiles in his possession
+a. As in a crossword puzzle, each word must rest on one of the tiles on the board.
+b. After writing the word, the player adds 7 tiles from the sack
+c. His score is accumulated according to all the words created on the board following the placing of the tiles
+i. Tiles placed on double or triple letter squares will be doubled or tripled in value accordingly
+ii. The word then receives the sum of the tile value of the
+iii. This amount will be doubled or tripled for each doubling or tripling word slot that is one of the tiles
+are superimposed on it (that is, it is possible, for example, to multiply by 4 or 9 if the word took two).
+double word or triple word slots respectively (
+iv. The above calculation is true for every new word created on the board following the placement in turn T
+7. A player who cannot form a valid word forfeits his turn.
+8. The game will end after N rounds.
+A legal word must meet all the following conditions:
+Written from left to right or from top to bottom (and not in any other way)
+• A word that appears in one of the books chosen for the game
+• Rests on one of the existing tiles on the board
+• Does not produce other illegal words on the board
+
+THE BOARD is 15x15 and one side is A-O (15 spots, you can issue them as numbers instead for the algorithems you are about to create)
+Double Letter Score: 
+D1 , L1, G3, I3, A4, H4, O4, C7, G7, I7, M7, C9, G9, I9, M9,D8, L8, A12, H12, O12, G13, I13, D15, L15
+Triple Letter Score:
+F2, J2, B6, F6, J6,  N6, ,B10 , F10, J10, N10, F14, J14
+Double Word Score:
+B2, C3, D4, E5, K5, L4, M3, N2, B14, C13, D12,E11, K11,L12,M13,N14
+Triple Word Score: 
+ A1, H1, O1, A8, 08, A15, H15, 015
+Star Tile: (Multiplies the value of the word written on )
+it is on 7x7 (in the middle)
+
+PART 1
+
+first class: Tile.java
+We would like objects of the class type to be immutable - that is, they cannot be changed.
+o We will achieve this result by having its fields be defined as final.
+o The constructor will have to initialize these variables
+• Define the char letter fields for a letter, and the int score for the score.
+o Since they are final, we have no problem with them being defined as public
+o A constructor that initializes these fields, equals , and hashCode
+We don't want anyone who wants to be able to produce tiles. We want to control their quantities for the good of the game. so
+The permission of the builder will be private!
+However, we will implement a public and static class called Bag within the Tile class, and thus this class will be the only
+with the option to create tiles.
+
+PART 2
+
+now the class Bag class Implementation inside Tile class:
+We will implement a public and static class called Bag within the Tile class, and this will be the only class
+with the option to create tiles.
+have an array int of 26 that represents the quantity of every letter (by the rules I mentioned )
+- for example cell 0 represent A with value 9 that represent 9 A tiles
+- for example in cell 1 represent B with value 2 and so on.... and in cell 25 represent Z will be 1
+
+have array of 26 tiles ordered by the ABC
+- Each tile with its letter and value according to the game definitions (all letters in Capital)
+- In fact, we don't need any more Tile objects other than the ones defined in the array.
+
+The getRand() method will return a random tile from the bag
+- It actually returns a reference (by value) to one of the cells in the tile array.
+- It subtracts the appropriate quantity from the array of quantities
+- Of course it is not possible to get any tile if its quantity has dropped to 0.
+- If the bag is empty it will simply return null
+
+
+The getTile() method will work similarly to getRand, except that it will receive a char (letter) and output a tile that is this signal from the bag if given, otherwise returns null.
+ The put() method given a tile is "return it to the bag"
+- In fact, you only need to update the quantity.
+- In any case, this method will not allow income beyond the amount defined in the game rules
+
+
+The size method will return as an int the amount of tiles inside the bag.
+
+For testing purposes, the method getQuantities will return a copy of the array of quantities
+
+And to ensure that there is only one bag in the program, here too the Bag constructor will be private, and in addition, we will create a public method
+and static getBag() which will return us an instance of Bag according to Singleton logic:
+We will create a static and private variable of type Bag that is initialized to null. In the getBag method we will check whether this variable is null,
+If so, reboot it. And in any case we will return the reference to it. Thus the first to invoke the method produces the
+The object and everything else will get a reference to that object. This pattern is called Singleton
+
+PART 3
+
+The Word.java class
+This class represents a possible placement of a word on the game board. 
+We will define the following fields:
+- tiles – an array of the tiles that make up the word e
+- row, col - which define the position (row, column) of the first tile in the word on the game board
+- vertical – a Boolean representing whether the word is written vertically (from top to bottom). If it is 'false' then The word is written horizontally (from left to right)
+The class constructor will initialize all the fields according to the order above. Each field will have its own getter. In addition, we will need the
+The equals method. 
+
+PART 4
+
+Board class
+• For the purpose of practice, this class will also implement the Singleton pattern we saw above, when the static method getBoard() will return us the reference to the single instance of the game board.
+• This department holds the game board (this is an importent part - we need to decide how to do that, i am thinkning dictionary but it is your decision)
+• The getTiles() method will return a two-dimensional array of tiles according to the state of the board.
+o Where there is no tile on the board it will simply be null.
+o Pay attention! The tiles are immutable but the array is not. Someone will be able to add tiles to it that are not Through Board and therefore here too we would like to return a copy of the array.
+▪ And it's not bad because in the end it's just voters.
+The following methods refer to the placement of a possible word on the board. 
+
+Notice how instead of one method of placeWord that had to do the actual placement and check that the word is valid on the board and according to the dictionary and calculate 
+
+The score for each word created, etc., we break it down into several different methods according to the Single Responsibility principle .
+
+The boardLegal() method will receive an instance of Word and return 'true' if:
+o The whole word is in the table 8
+o Rest on one of the existing tiles on the board as in a crossword puzzle (adjacent or overlapping tile)
+▪ The first placement, as I recall, rests on the square b
+o Did not require replacement of existing tiles.
+Otherwise it will return 'false'.
+For example, from the example above, in the first line (HORN) we saw that the entire word entered the board,
+And indeed one of the tiles rests on the star.
+For the placement of FARM we will additionally make sure that one of the tiles is adjacent or overlaps with one of the existing tiles
+on the board. The R tile provides this requirement. Also, we will have to make sure that the R is the same as the R that existed
+Already on the board in the placement of HORN so the word HORN was not replaced.
+• The dictionaryLegal() method will check if the word is legal in terms of the game dictionary (words that appear).
+In the selected books (. For now it will always return true .
+• The getWords() method - given a Word, it will return us an array of all the new words that will be created on
+The board includes the same word, if there was such a placement on the board. Examples:
+o For PASTE in line 3 above, an array containing PASTE and FARMS will be returned.
+o For MOB line 4 above, an array containing MOB, NOT, BE will be returned.
+o The order of the words in the array does not matter
+o Instead of a primitive array Word[] this time you will return an object of type ArrayList<Word>
+▪ This object allows the array it holds to grow dynamically.
+• The getScore() method given a word will calculate the total score of the word, including all squares
+The bonus on which it rests.
+
+pay attention! So far, no method performs placement on the board in a verb. These were auxiliary methods.
+
+PART 5
+
+Now, given a possible word for placement, we can check using the methods above, whether it is legal in terms of the board,
+If so then demand all the new words that would have been created from the possible placement of the word, and for every word
+One to check if it is legal in terms of the game dictionary. If all the words are indeed valid then we can finally execute the
+The actual placement on the board so we will return the cumulative score for each new word created. In any other case, no
+A placement will be made and we will return a score of 0.
+This is exactly what you must do in the tryPlaceWord() method, which, given a Word, will return an appropriate score.
+Note that the placement contains only the new tiles to be placed on the board, while the various tests contain
+the whole word. For example, when we placed FARM in the second row, we placed only FA_M on the board (in place of the R
+There is a null tile (but all the various tests before placing it on the board checked the word FARM in its entirety.
