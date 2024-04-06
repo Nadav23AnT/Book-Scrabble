@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Board {
+  int player1Score = 0;
+  int player2Score = 0;
+  int turnCount = 0; // This keeps track of the turn number.
+  public static final int BOARD_SIZE = 15; // Adjust if your board size is different
   private static Board instance = null; // Singleton instance
   private HashMap<Position, Tile> boardTiles;
   private final Position centerTile = new Position(7, 7);
@@ -65,91 +69,26 @@ public class Board {
     ArrayList<Word> formedWords = new ArrayList<>();
     formedWords.add(word); // Add the main word
 
-    // Check for new perpendicular words at each tile of the main word
+    // Check for new words formed at each tile of the main word
     for (int i = 0; i < word.getTiles().length; i++) {
       int row = word.isVertical() ? word.getRow() + i : word.getRow();
       int col = word.isVertical() ? word.getCol() : word.getCol() + i;
 
-      // If there's a new tile placed here, check for perpendicular words
-      if (boardTiles.containsKey(new Position(row, col))) {
-        Word perpendicularWord = findPerpendicularWord(row, col, !word.isVertical());
-        if (perpendicularWord != null) {
-          formedWords.add(perpendicularWord);
+      // Check horizontally if the main word is vertical, and vice versa
+      if (word.isVertical() && boardTiles.containsKey(new Position(row, col))) {
+        Word horizontalWord = getHorizontalWordAt(row, col);
+        if (horizontalWord != null && !horizontalWord.equals(word)) {
+          formedWords.add(horizontalWord);
+        }
+      } else if (!word.isVertical() && boardTiles.containsKey(new Position(row, col))) {
+        Word verticalWord = getVerticalWordAt(row, col);
+        if (verticalWord != null && !verticalWord.equals(word)) {
+          formedWords.add(verticalWord);
         }
       }
     }
     return formedWords;
   }
-
-  private Word findPerpendicularWord(int row, int col, boolean isVertical) {
-    System.out.println("Finding perpendicular word at (" + row + "," + col + ") vertical: " + isVertical);
-
-    ArrayList<Tile> tileList = new ArrayList<>();
-    int startRow = row;
-    int startCol = col;
-
-    // Extend backwards to the beginning of the word
-    while (true) {
-      int checkRow = isVertical ? startRow - 1 : startRow;
-      int checkCol = isVertical ? startCol : startCol - 1;
-
-      if (checkRow < 0 || checkCol < 0) {
-        break;
-      }
-
-      Position checkPosition = new Position(checkRow, checkCol);
-      Tile checkTile = boardTiles.get(checkPosition);
-      if (checkTile == null) {
-        break;
-      }
-
-      startRow = checkRow;
-      startCol = checkCol;
-      tileList.add(0, checkTile); // Add at the beginning
-    }
-
-    // Extend forward to the end of the word
-    int currentRow = startRow;
-    int currentCol = startCol;
-    while (true) {
-      Position currentPosition = new Position(currentRow, currentCol);
-      Tile currentTile = boardTiles.get(currentPosition);
-      if (currentTile == null) {
-        break;
-      }
-
-      tileList.add(currentTile); // Add at the end
-
-      if (isVertical) {
-        currentRow++;
-      } else {
-        currentCol++;
-      }
-
-      // Break if out of bounds
-      if (currentRow >= 15 || currentCol >= 15) {
-        break;
-      }
-    }
-
-    // Building the foundWord string from tileList
-    StringBuilder wordBuilder = new StringBuilder();
-    for (Tile tile : tileList) {
-      wordBuilder.append(tile.getLetter());
-    }
-    String foundWord = wordBuilder.toString();
-
-    // Only create a Word object if the length is greater than 1
-    if (tileList.size() > 1) {
-      System.out.println("Found perpendicular word: " + foundWord);
-      Tile[] tiles = tileList.toArray(new Tile[0]);
-      return new Word(tiles, startRow, startCol, isVertical);
-    }
-
-    return null;
-  }
-  // System.out.println("Calculating score for word: " + word.getWord());
-  // System.out.println("Score for word " + word.getWord() + ": " + score);
 
   public int getScore(Word word) {
     int score = 0;
@@ -317,28 +256,135 @@ public class Board {
 
   public int tryPlaceWord(Word word) {
     System.out.println("Trying to place word: " + word.getWord());
+    int wordScore = 0;
 
-    int totalScore = 0;
-    if (!boardLegal(word)) {
-      return 0; // If the word is not legal, return a score of 0
+    if (!boardLegal(word) || !dictionaryLegal(word)) {
+        return 0; // If the word is not legal, return a score of 0
     }
-    // If the word placement is legal, get all new words formed
-    ArrayList<Word> formedWords = getWords(word);
-    // Iterate through all formed words to calculate the total score
-    for (Word formedWord : formedWords) {
-      // Here, you can also add a dictionary check for each word
-      // if (dictionaryLegal(formedWord)) {
-      totalScore += getScore(formedWord);
-      // } else {
-      // return 0; // If any formed word is not in the dictionary, return 0
-      // }
+
+    // Score the main word
+    wordScore += getScore(word);
+
+    // Score any additional connected words formed by placing this word
+    // Here we make sure not to double-count the score for tiles that are part of both the main word and connected words
+    int connectedWordsScore = findAndScoreConnectedWords(word);
+    wordScore += connectedWordsScore;
+
+    // Update the score for the current player
+    if (turnCount % 2 == 0) {
+        player1Score += wordScore;
+        System.out.println("Player 1's new score: " + player1Score);
+    } else {
+        player2Score += wordScore;
+        System.out.println("Player 2's new score: " + player2Score);
     }
-    // Apply the score for the word placement on the board
-    // Assuming you have a method to apply the tiles to the board
-    applyWordToBoard(word);
-    System.out.println("Final score for placing " + word.getWord() + ": " + totalScore);
+
+    applyWordToBoard(word); // Place the word on the board
+    turnCount++; // Move to the next player's turn
+
+    System.out.println("Final score for placing " + word.getWord() + ": " + wordScore);
     printBoardState();
-    return totalScore;
+    return wordScore;
+}
+
+//   System.out.println("Connected words score: " + connectedWordsScore);
+private int findAndScoreConnectedWords(Word word) {
+  int connectedWordsScore = 0;
+  int oldValuecConnectedWordsScore = connectedWordsScore;
+  for (int i = 0; i < word.getTiles().length; i++) {
+      int row = word.isVertical() ? word.getRow() + i : word.getRow();
+      int col = word.isVertical() ? word.getCol() : word.getCol() + i;
+
+      // Only process newly placed tiles
+      if (word.getTiles()[i] != null) {
+        // If the word is vertical, check horizontally at each tile position for new words
+          if (word.isVertical()) {
+              oldValuecConnectedWordsScore = connectedWordsScore;
+              connectedWordsScore += scoreIfNewWord(row, col - 1, false);
+              connectedWordsScore += scoreIfNewWord(row, col + 1, false);
+              if (oldValuecConnectedWordsScore != connectedWordsScore) {
+                connectedWordsScore += word.getTiles()[i].getScore();
+              }
+          }
+          // If the word is horizontal, check vertically at each tile position for new words
+          if (!word.isVertical()) {
+              oldValuecConnectedWordsScore = connectedWordsScore;
+              connectedWordsScore += scoreIfNewWord(row - 1, col, true);
+              connectedWordsScore += scoreIfNewWord(row + 1, col, true);
+              if (oldValuecConnectedWordsScore != connectedWordsScore) {
+                connectedWordsScore += word.getTiles()[i].getScore();
+              }
+          }
+      }
+  }
+
+  System.out.println("Connected words score: " + connectedWordsScore);
+  return connectedWordsScore;
+}
+
+private int scoreIfNewWord(int row, int col, boolean vertical) {
+  // Check if there's a tile at the given position; if not, it's not a new word
+  if (getTile(row, col) == null) {
+      return 0;
+  }
+  // Find the word at this position
+  Word newWord = vertical ? getVerticalWordAt(row, col) : getHorizontalWordAt(row, col);
+  // If there's a word and it's longer than one letter, score it
+  return newWord != null && newWord.getTiles().length > 1 ? getScore(newWord) : 0;
+}
+
+
+  private Word getVerticalWordAt(int row, int col) {
+    StringBuilder wordBuilder = new StringBuilder();
+    int startRow = row;
+    // Move up until the beginning of the word
+    while (startRow >= 0 && getTile(startRow, col) != null) {
+      startRow--;
+    }
+    startRow++; // Move down to the first character of the word
+
+    // Build the word by moving down
+    ArrayList<Tile> tiles = new ArrayList<>();
+    for (int i = startRow; i < BOARD_SIZE && getTile(i, col) != null; i++) {
+      wordBuilder.append(getTile(i, col).getLetter());
+      tiles.add(getTile(i, col));
+    }
+
+    // Return null if it's just a single letter (not a word)
+    if (wordBuilder.length() <= 1) {
+      return null;
+    }
+
+    return new Word(tiles.toArray(new Tile[0]), startRow, col, true);
+  }
+
+  private Word getHorizontalWordAt(int row, int col) {
+    StringBuilder wordBuilder = new StringBuilder();
+    int startCol = col;
+    // Move left until the beginning of the word
+    while (startCol >= 0 && getTile(row, startCol) != null) {
+      startCol--;
+    }
+    startCol++; // Move right to the first character of the word
+
+    // Build the word by moving right
+    ArrayList<Tile> tiles = new ArrayList<>();
+    for (int i = startCol; i < BOARD_SIZE && getTile(row, i) != null; i++) {
+      wordBuilder.append(getTile(row, i).getLetter());
+      tiles.add(getTile(row, i));
+    }
+
+    // Return null if it's just a single letter (not a word)
+    if (wordBuilder.length() <= 1) {
+      return null;
+    }
+
+    return new Word(tiles.toArray(new Tile[0]), row, startCol, false);
+  }
+
+  public Tile getTile(int row, int col) {
+    Position position = new Position(row, col);
+    return boardTiles.get(position); // Assuming boardTiles is a map storing tiles by their positions
   }
 
   // Placeholder for the method that applies the word to the board
