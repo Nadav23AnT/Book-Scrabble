@@ -66,6 +66,7 @@ public class Board {
   }
 
   public ArrayList<Word> getWords(Word word) {
+    // needs to check and valid this method
     ArrayList<Word> formedWords = new ArrayList<>();
     formedWords.add(word); // Add the main word
 
@@ -264,6 +265,7 @@ public class Board {
 
     // Score the main word
     wordScore += getScore(word);
+    applyWordToBoard(word); // Place the word on the board
 
     // Score any additional connected words formed by placing this word
     // Here we make sure not to double-count the score for tiles that are part of both the main word and connected words
@@ -279,7 +281,6 @@ public class Board {
         System.out.println("Player 2's new score: " + player2Score);
     }
 
-    applyWordToBoard(word); // Place the word on the board
     turnCount++; // Move to the next player's turn
 
     System.out.println("Final score for placing " + word.getWord() + ": " + wordScore);
@@ -290,7 +291,7 @@ public class Board {
 //   System.out.println("Connected words score: " + connectedWordsScore);
 private int findAndScoreConnectedWords(Word word) {
   int connectedWordsScore = 0;
-  int oldValuecConnectedWordsScore = connectedWordsScore;
+  // int oldValuecConnectedWordsScore = connectedWordsScore;
   for (int i = 0; i < word.getTiles().length; i++) {
       int row = word.isVertical() ? word.getRow() + i : word.getRow();
       int col = word.isVertical() ? word.getCol() : word.getCol() + i;
@@ -299,21 +300,31 @@ private int findAndScoreConnectedWords(Word word) {
       if (word.getTiles()[i] != null) {
         // If the word is vertical, check horizontally at each tile position for new words
           if (word.isVertical()) {
-              oldValuecConnectedWordsScore = connectedWordsScore;
-              connectedWordsScore += scoreIfNewWord(row, col - 1, false);
-              connectedWordsScore += scoreIfNewWord(row, col + 1, false);
-              if (oldValuecConnectedWordsScore != connectedWordsScore) {
-                connectedWordsScore += word.getTiles()[i].getScore();
+              // oldValuecConnectedWordsScore = connectedWordsScore;
+              if (scoreIfNewWord(row, col - 1, false) > 0) {
+                connectedWordsScore += scoreIfNewWord(row, col - 1, false);
               }
+              else {
+                connectedWordsScore += scoreIfNewWord(row, col + 1, false);
+              }
+              
+              // if (oldValuecConnectedWordsScore != connectedWordsScore) {
+              //   connectedWordsScore += word.getTiles()[i].getScore();
+              // }
           }
           // If the word is horizontal, check vertically at each tile position for new words
           if (!word.isVertical()) {
-              oldValuecConnectedWordsScore = connectedWordsScore;
-              connectedWordsScore += scoreIfNewWord(row - 1, col, true);
-              connectedWordsScore += scoreIfNewWord(row + 1, col, true);
-              if (oldValuecConnectedWordsScore != connectedWordsScore) {
-                connectedWordsScore += word.getTiles()[i].getScore();
+              // oldValuecConnectedWordsScore = connectedWordsScore;
+              if (scoreIfNewWord(row - 1, col, true) > 0) {
+                connectedWordsScore += scoreIfNewWord(row - 1, col, true);
               }
+              else {
+                connectedWordsScore += scoreIfNewWord(row + 1, col, true);
+              }
+              
+              // if (oldValuecConnectedWordsScore != connectedWordsScore) {
+              //   connectedWordsScore += word.getTiles()[i].getScore();
+              // }
           }
       }
   }
