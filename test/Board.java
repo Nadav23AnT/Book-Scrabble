@@ -66,30 +66,35 @@ public class Board {
   }
 
   public ArrayList<Word> getWords(Word word) {
-    // needs to check and valid this method
     ArrayList<Word> formedWords = new ArrayList<>();
-    formedWords.add(word); // Add the main word
+    formedWords.add(word); // Add the main word itself to the list
 
-    // Check for new words formed at each tile of the main word
+    // Iterate through each tile of the placed word
     for (int i = 0; i < word.getTiles().length; i++) {
-      int row = word.isVertical() ? word.getRow() + i : word.getRow();
-      int col = word.isVertical() ? word.getCol() : word.getCol() + i;
+        int row = word.isVertical() ? word.getRow() + i : word.getRow();
+        int col = word.isVertical() ? word.getCol() : word.getCol() + i;
 
-      // Check horizontally if the main word is vertical, and vice versa
-      if (word.isVertical() && boardTiles.containsKey(new Position(row, col))) {
-        Word horizontalWord = getHorizontalWordAt(row, col);
-        if (horizontalWord != null && !horizontalWord.equals(word)) {
-          formedWords.add(horizontalWord);
+        // If the word is vertical, check horizontally at each tile, and vice versa
+        if (word.isVertical()) {
+            // Check horizontally
+            if (boardTiles.containsKey(new Position(row, col - 1)) || boardTiles.containsKey(new Position(row, col + 1))) {
+                Word horizontalWord = getHorizontalWordAt(row, col);
+                if (horizontalWord != null && !formedWords.contains(horizontalWord)) {
+                    formedWords.add(horizontalWord);
+                }
+            }
+        } else {
+            // Check vertically
+            if (boardTiles.containsKey(new Position(row - 1, col)) || boardTiles.containsKey(new Position(row + 1, col))) {
+                Word verticalWord = getVerticalWordAt(row, col);
+                if (verticalWord != null && !formedWords.contains(verticalWord)) {
+                    formedWords.add(verticalWord);
+                }
+            }
         }
-      } else if (!word.isVertical() && boardTiles.containsKey(new Position(row, col))) {
-        Word verticalWord = getVerticalWordAt(row, col);
-        if (verticalWord != null && !verticalWord.equals(word)) {
-          formedWords.add(verticalWord);
-        }
-      }
     }
     return formedWords;
-  }
+}
 
   public int getScore(Word word) {
     int score = 0;
@@ -345,53 +350,43 @@ private int scoreIfNewWord(int row, int col, boolean vertical) {
 }
 
 
-  private Word getVerticalWordAt(int row, int col) {
-    StringBuilder wordBuilder = new StringBuilder();
-    int startRow = row;
-    // Move up until the beginning of the word
-    while (startRow >= 0 && getTile(startRow, col) != null) {
-      startRow--;
-    }
-    startRow++; // Move down to the first character of the word
-
-    // Build the word by moving down
-    ArrayList<Tile> tiles = new ArrayList<>();
-    for (int i = startRow; i < BOARD_SIZE && getTile(i, col) != null; i++) {
-      wordBuilder.append(getTile(i, col).getLetter());
-      tiles.add(getTile(i, col));
-    }
-
-    // Return null if it's just a single letter (not a word)
-    if (wordBuilder.length() <= 1) {
-      return null;
-    }
-
-    return new Word(tiles.toArray(new Tile[0]), startRow, col, true);
+private Word getHorizontalWordAt(int row, int col) {
+  // Find the start of the word
+  while (col > 0 && boardTiles.containsKey(new Position(row, col - 1))) {
+      col--;
   }
 
-  private Word getHorizontalWordAt(int row, int col) {
-    StringBuilder wordBuilder = new StringBuilder();
-    int startCol = col;
-    // Move left until the beginning of the word
-    while (startCol >= 0 && getTile(row, startCol) != null) {
-      startCol--;
-    }
-    startCol++; // Move right to the first character of the word
-
-    // Build the word by moving right
-    ArrayList<Tile> tiles = new ArrayList<>();
-    for (int i = startCol; i < BOARD_SIZE && getTile(row, i) != null; i++) {
-      wordBuilder.append(getTile(row, i).getLetter());
-      tiles.add(getTile(row, i));
-    }
-
-    // Return null if it's just a single letter (not a word)
-    if (wordBuilder.length() <= 1) {
-      return null;
-    }
-
-    return new Word(tiles.toArray(new Tile[0]), row, startCol, false);
+  // Build the word from left to right
+  StringBuilder word = new StringBuilder();
+  ArrayList<Tile> tiles = new ArrayList<>();
+  while (col < BOARD_SIZE && boardTiles.containsKey(new Position(row, col))) {
+      Tile tile = boardTiles.get(new Position(row, col));
+      word.append(tile.getLetter());
+      tiles.add(tile);
+      col++;
   }
+
+  return new Word(tiles.toArray(new Tile[0]), row, col - word.length(), false);
+}
+
+private Word getVerticalWordAt(int row, int col) {
+  // Find the start of the word
+  while (row > 0 && boardTiles.containsKey(new Position(row - 1, col))) {
+      row--;
+  }
+
+  // Build the word from top to bottom
+  StringBuilder word = new StringBuilder();
+  ArrayList<Tile> tiles = new ArrayList<>();
+  while (row < BOARD_SIZE && boardTiles.containsKey(new Position(row, col))) {
+      Tile tile = boardTiles.get(new Position(row, col));
+      word.append(tile.getLetter());
+      tiles.add(tile);
+      row++;
+  }
+
+  return new Word(tiles.toArray(new Tile[0]), row - word.length(), col, true);
+}
 
   public Tile getTile(int row, int col) {
     Position position = new Position(row, col);
