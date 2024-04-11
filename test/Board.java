@@ -35,7 +35,6 @@ public class Board {
   public void placeTile(int row, int col, Tile tile) {
     Position position = new Position(row, col);
     boardTiles.put(position, tile);
-    System.out.println("Placing tile " + tile.getLetter() + " at (" + row + ", " + col + ")");
   }
 
   public Tile getTiles(int row, int col) {
@@ -44,7 +43,6 @@ public class Board {
 
   public boolean isFirstWord() {
     boolean firstWord = boardTiles.isEmpty();
-    System.out.println("Is first word: " + firstWord);
     return firstWord;
   }
 
@@ -99,7 +97,6 @@ public class Board {
   public int getScore(Word word) {
     int score = 0;
     boolean centerTileCovered = false; // Flag to check if the center tile is covered
-    System.out.println("Calculating score for word: " + word.getWord());
     int wordMultiplier = 1;
 
     for (int i = 0; i < word.getTiles().length; i++) {
@@ -146,7 +143,6 @@ public class Board {
       score *= 2;
     }
 
-    System.out.println("Score for word " + word.getWord() + ": " + score);
     return score;
   }
 
@@ -192,9 +188,7 @@ public class Board {
   }
 
   public boolean boardLegal(Word word) {
-    System.out.println(
-        "Checking boardLegal for word: " + word.getWord() + " at (" + word.getRow() + "," + word.getCol() + ")");
-    boolean isLegal = false;// result of the boardLegal check
+   boolean isLegal = false;// result of the boardLegal check
     // Check if the entire word fits on the board
     for (int i = 0; i < word.getTiles().length; i++) {
       int row = word.isVertical() ? word.getRow() + i : word.getRow();
@@ -202,7 +196,6 @@ public class Board {
 
       // Check board boundaries
       if (row < 0 || row >= 15 || col < 0 || col >= 15) {
-        System.out.println("Is placement legal for " + word.getWord() + ": " + isLegal);
         return isLegal; // Word goes beyond the board
       }
 
@@ -210,7 +203,6 @@ public class Board {
       Tile existingTile = getTiles(row, col);
       Tile newTile = word.getTiles()[i];
       if (existingTile != null && newTile != null && !existingTile.equals(newTile)) {
-        System.out.println("Is placement legal for " + word.getWord() + ": " + isLegal);
         return isLegal; // Overlapping tiles do not match
       }
     }
@@ -228,12 +220,10 @@ public class Board {
         // If there's a new tile, check if it's adjacent to existing tiles
         if (word.getTiles()[i] != null && isAdjacentToTile(row, col)) {
           isLegal = true;
-          System.out.println("Is placement legal for " + word.getWord() + ": " + isLegal);
           return isLegal; // The word is adjacent to an existing tile
         }
       }
     }
-    System.out.println("Is placement legal for " + word.getWord() + ": " + isLegal);
     return isLegal; // No adjacency found for any tile in the word
   }
 
@@ -261,7 +251,6 @@ public class Board {
   }
 
   public int tryPlaceWord(Word word) {
-    System.out.println("Trying to place word: " + word.getWord());
     int wordScore = 0;
 
     if (!boardLegal(word) || !dictionaryLegal(word)) {
@@ -280,20 +269,16 @@ public class Board {
     // Update the score for the current player
     if (turnCount % 2 == 0) {
         player1Score += wordScore;
-        System.out.println("Player 1's new score: " + player1Score);
     } else {
         player2Score += wordScore;
-        System.out.println("Player 2's new score: " + player2Score);
     }
 
     turnCount++; // Move to the next player's turn
 
-    System.out.println("Final score for placing " + word.getWord() + ": " + wordScore);
-    printBoardState();
+    
     return wordScore;
 }
 
-//   System.out.println("Connected words score: " + connectedWordsScore);
 private int findAndScoreConnectedWords(Word word) {
   int connectedWordsScore = 0;
   // int oldValuecConnectedWordsScore = connectedWordsScore;
@@ -334,7 +319,6 @@ private int findAndScoreConnectedWords(Word word) {
       }
   }
 
-  System.out.println("Connected words score: " + connectedWordsScore);
   return connectedWordsScore;
 }
 
