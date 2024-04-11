@@ -1,6 +1,6 @@
-package test;
+package archive2.test;
 
-import test.Tile.Bag;
+import archive2.test.Tile.Bag;
 
 public class MainTrain {
 	
@@ -49,7 +49,7 @@ public class MainTrain {
 		return ts;
 	}
 	
-	
+
 	public static void testBoard() {
 		Board b = Board.getBoard();
 		if(b!=Board.getBoard())
