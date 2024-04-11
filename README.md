@@ -17,6 +17,7 @@ Software Engineering Experience
 **Algorithm Implementation:** Employs algorithms for random tile drawing and specific tile retrieval, essential for game logic.
 **Parallel Programming:** The architecture supports extension into using threads for parallel tasks, crucial for real-time multiplayer games.
 **Event-Oriented Programming with GUI:** While the current console-based validation demonstrates core logic, the design allows integration with a GUI, showcasing event-driven programming.
+![book scru2](https://github.com/Nadav23AnT/Book-Scrabble/assets/71144691/67efba89-d56a-4be0-a0e9-c976d363efd7)
 
 
 ### Getting Started
