@@ -36,7 +36,16 @@ Double Word Score:
 B2, C3, D4, E5, K5, L4, M3, N2, B14, C13, D12,E11, K11,L12,M13,N14
 Triple Word Score: 
  A1, H1, O1, A8, 08, A15, H15, 015
- 
+
+ Here's how we'll proceed:
+
+Guide Reception: You'll send over the project guide, and I'll align my circuits to understand the requirements thoroughly.
+Confirmation: Once I've ingested the guide, I'll confirm my understanding, ensuring we're in perfect sync.
+Your Work Review: You'll share what you've accomplished so far. I'll analyze your progress to align with the project's trajectory.
+Second Confirmation: After reviewing your work, I'll confirm my understanding, ensuring no detail slips through the digital cracks.
+Validator Analysis: You'll send over the mainTrain.java file, which I'll examine meticulously to grasp the validation approach.
+Final Confirmation and Action: Post understanding the validation logic in mainTrain.java, I'll confirm my comprehension and proceed to craft a new validator mirroring the approach and standards of mainTrain.java.
+ ----
 GUIDE
 
 In fact, this project can be used as your showcase when you want to present the programming experience you have gained.

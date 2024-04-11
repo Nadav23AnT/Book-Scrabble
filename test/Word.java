@@ -12,7 +12,6 @@ public class Word {
         this.row = row;
         this.col = col;
         this.isVertical = isVertical;
-        System.out.println("Creating Word: " + getWord() + " at (" + row + "," + col + ") vertical: " + isVertical);
     }
 
     public boolean isVertical() {
@@ -36,7 +35,6 @@ public class Word {
         for (Tile tile : tiles) {
             sb.append(tile != null ? tile.getLetter() : "_");
         }
-        System.out.println("Assembling word: " + sb);
         return sb.toString();
     }
 
