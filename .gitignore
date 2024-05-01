@@ -1,1 +1,6 @@
 /archive
+text1.txt
+text2.txt
+test/test_bloomfilter.java
+test/test_cachemanager.java
+test/test_io_searcher.java
