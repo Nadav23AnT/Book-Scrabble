@@ -1,39 +1,25 @@
 package test;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
 
-public class LRU implements CacheReplacementPolicy {
-    private LinkedHashMap<String, Void> cache;
-    private int capacity;
-    private static final int DEFAULT_CAPACITY = 100; // Default capacity
+public class LRU implements CacheReplacementPolicy{
+    LinkedHashSet<String> recentlyWords; //First word: least recently asked word, Last word: most recently asked word
 
-    public LRU() {
-        this(DEFAULT_CAPACITY);
+    public LRU()
+    {
+        recentlyWords = new LinkedHashSet<>();
     }
 
-    public LRU(int capacity) {
-        this.capacity = capacity;
-        this.cache = new LinkedHashMap<>(this.capacity, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<String, Void> eldest) {
-                return size() > LRU.this.capacity;
-            }
-        };
+    public void add(String word)
+    {//Replacing the word to the end of the list or adding the word to the end if the word does not exists
+        recentlyWords.remove(word);
+        recentlyWords.add(word);
     }
 
-    @Override
-    public void add(String word) {
-        cache.put(word, null);
-    }
-
-    @Override
-    public String remove() {
-        if (!cache.isEmpty()) {
-            String firstKey = cache.keySet().iterator().next();
-            cache.remove(firstKey);
-            return firstKey;
-        }
-        return null; // Or throw exception if preferred
+    public String remove()
+    {//Removing the first word
+        String firstWord = recentlyWords.iterator().next();
+        recentlyWords.remove(firstWord);
+        return firstWord;
     }
 }

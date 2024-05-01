@@ -12,8 +12,8 @@ public class Dictionary {
 
   public Dictionary(String... fileNames) {
     // Initialize CacheManagers with pre-defined sizes
-    this.existingWordsCache = new CacheManager(400, new LRU(400));
-    this.nonExistingWordsCache = new CacheManager(100, new LFU(100));
+    this.existingWordsCache = new CacheManager(400, new LRU());
+    this.nonExistingWordsCache = new CacheManager(100, new LFU());
 
     // Initialize the BloomFilter with 256 bits and the specific hash functions
     this.bloomFilter = new BloomFilter(256, "MD5", "SHA1");

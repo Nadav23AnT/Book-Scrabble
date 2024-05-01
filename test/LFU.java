@@ -1,65 +1,33 @@
 package test;
 
-
-import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
-public class LFU implements CacheReplacementPolicy {
-    private Map<String, Integer> freqMap;
-    private TreeMap<Integer, LinkedHashSet<String>> freqToList;
-    private int capacity;
-    private static final int DEFAULT_CAPACITY = 100; // Default capacity
-
-    public LFU() {
-        this(DEFAULT_CAPACITY);
+public class LFU implements CacheReplacementPolicy{
+    LinkedHashMap<String, Integer> frequentlyWords; //Keys: Words, Values: Number of times the word has been asked
+    
+    public LFU()
+    {
+        frequentlyWords = new LinkedHashMap<>();
     }
 
-    public LFU(int capacity) {
-        this.capacity = capacity;
-        this.freqMap = new HashMap<>();
-        this.freqToList = new TreeMap<>();
+    public void add(String word)
+    {//Incrementing the value of the word by 1 or adding the word to frequentlyWords if it does not exists
+        frequentlyWords.put(word, frequentlyWords.getOrDefault(word, 0) + 1);
     }
 
-    private void touch(String word) {
-        int freq = freqMap.getOrDefault(word, 0);
-        if (freq > 0) {
-            freqToList.get(freq).remove(word);
-            if (freqToList.get(freq).isEmpty()) {
-                freqToList.remove(freq);
+    public String remove()
+    {//Removing the word with the minimum number times asked
+        Map.Entry<String, Integer> min = null;
+
+        for (Map.Entry<String, Integer> entry : frequentlyWords.entrySet())
+        {
+            if (min == null || entry.getValue() < min.getValue())
+            {
+                min = entry;
             }
         }
-        freq += 1;
-        freqMap.put(word, freq);
-        freqToList.computeIfAbsent(freq, k -> new LinkedHashSet<>()).add(word);
-    }
 
-    @Override
-    public void add(String word) {
-        if (freqMap.containsKey(word)) {
-            touch(word);
-        } else {
-            if (freqMap.size() >= capacity) {
-                remove(); // Evict least frequently used item
-            }
-            freqMap.put(word, 1);
-            freqToList.computeIfAbsent(1, k -> new LinkedHashSet<>()).add(word);
-        }
-    }
-
-    @Override
-    public String remove() {
-        if (!freqToList.isEmpty()) {
-            Map.Entry<Integer, LinkedHashSet<String>> minFreq = freqToList.firstEntry();
-            String word = minFreq.getValue().iterator().next();
-            minFreq.getValue().remove(word);
-            if (minFreq.getValue().isEmpty()) {
-                freqToList.pollFirstEntry();
-            }
-            freqMap.remove(word);
-            return word;
-        }
-        return null; // Or throw exception if preferred
+        return min.getKey();
     }
 }
