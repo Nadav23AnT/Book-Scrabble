@@ -4,3 +4,8 @@ text2.txt
 test/test_bloomfilter.java
 test/test_cachemanager.java
 test/test_io_searcher.java
+s1.txt
+s2.txt
+t1.txt
+t2.txt
+t3.txt
